@@ -1,0 +1,47 @@
+{{define "title"}}
+Login
+{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="login_form.css"/>
+{{end}}
+
+
+{{define "script"}}
+{{end}}
+
+{{define "main"}}
+<div clas="container-body" style="background-repeat: no-repeat; background-size:cover; background-image: url(https://imgcy.trivago.com/c_limit,d_dummy.jpeg,f_auto,h_1300,q_auto,w_2000/itemimages/32/49/3249980_v1.jpeg)">
+
+
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5" style="margin-top: 300px">
+                <div class="isi" style="height: 700px">
+                <div class="border" >
+                <div class="login-wrap p-4 p-md-5">
+                    <div class="icon d-flex align-items-center justify-content-center">
+                        <span class="fa fa-user-o"></span>
+                    </div>
+
+                    <h3 class="text-center mb-4" style="margin-top: 5px; margin-bottom: 100px; color: #005cbf; font-style: oblique" ><b>Sign In</b></h3>
+                    <form action="" method="post" class="login-form" >
+                        <div class="form-group" >
+                            <input name="userName" type="text" class="form-control rounded-left" placeholder="Username" required>
+                        </div>
+                        <div class="form-group d-flex">
+                            <input name="password" type="password" class="form-control rounded-left" placeholder="Password" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="form-control btn btn-primary rounded submit px-3">Login</button>
+                        </div>
+
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+
+
+{{end}}

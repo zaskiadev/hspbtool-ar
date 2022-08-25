@@ -1,0 +1,60 @@
+{{define "title"}}
+{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+{{end}}
+
+{{define "script"}}
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    $('.table').DataTable({})
+})
+</script>
+{{end}}
+
+
+{{define "main"}}
+<h1 class="display-6 mt-5">Task List</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Code Task</th>
+            <th>Task</th>
+            <th>Assign To</th>
+            <th>Deadline</th>
+            <th>Status Task</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+        <tbody>
+        {{range $task:= .Tasks}}
+            <tr>
+                <td>{{$task.CodeTask}}</td>
+                <td>{{$task.Task}}</td>
+                <td>{{$task.UserDestinationTask}}</td>
+                <td>{{$task.DeadlineTask}}</td>
+                <td>{{$task.StatusTask}}</td>
+                <td>
+                    {{if ne $task.StatusTask "Done" }}
+                    <a href="#" class="btn btn-warning">Add Comment</a>
+                    <a href="#" class="btn btn-info">Show Comment</a>
+                    <a href="/edit_task/{{$task.CodeTask}}" class="btn btn-danger">Edit Task</a>
+                    <form action="/done/{{$task.CodeTask}}" method="POST">
+                        <button type="submit" class="btn btn-info">Done</button>
+                    </form>
+
+                    {{else}}
+                    <button type="button" href="#" class="btn btn-success">Done</button>
+                    <a href="#" class="btn btn-info">Show Comment</a>
+                    {{end}}
+                </td>
+            </tr>
+        {{end}}
+        </tbody>
+
+</table>
+<a class="btn btn-success" href="/add_task"> <i class="fa-solid fa-plus"></i>Create Task</a>
+{{end}}
