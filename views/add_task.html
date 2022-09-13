@@ -4,56 +4,122 @@ Add Task
 
 {{define "css"}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" integrity="sha256-h7vy42BP4MtLE0udIyBuOEoB8nJI2iLaiOJEgO5Ykp0=" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {{end}}
 
 {{define "script"}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-*.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+
+        //Initialize Select2 Elements
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+    })
+</script>
 {{end}}
 
 
 {{define "main"}}
-<h1>Create Task</h1>
-<form action="" method="post">
-    <div class="row mb-2">
-        <div class="col-2" style="text-align: end">Input Task</div>
-        <div class="col-6">
-            <textarea name="taskDetail" placeholder="Enter Task" class="form-control"></textarea>
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-2" style="text-align: end">Task Given To</div>
-        <div class="col-6">
-            <select name="dataUserTaskTo" id="dataUserTaskTo" class="select">
-                {{range $user := .DataUser}}
-                <option value="{{$user.UserName}}">{{$user.UserName}}</option>
-                {{end}}
-            </select>
-        </div>
-    </div>
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Task Menu</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Task Menu</li>
+                    </ol>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
 
-    <div class="row mb-2">
-        <div class="col-2" style="text-align: end">Deadline Task</div>
-        <div class="col-6">
-            <input type="date" name="deadLineTask" >
-        </div>
-    </div>
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-13">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Add Task</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <form action method="post">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="taskID">Task ID</label>
+                                <input type="text" class="form-control form-control-border border-width-2" id="taskID" name="taskID" value="{{.DataTask.TaskID}}" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>User Tasked</label>
+                                <select id="userDestinationTask" name="userDestinationTask" class="form-control-border select2bs4" style="width: 100%; height: 100%">
+                                    {{range $user := .DataUser}}
+                                    <option value="{{$user.UserID}}-{{$user.UserName}}">{{$user.UserID}}-{{$user.UserName}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
 
-    <div class="row mb-2">
-        <div class="col-2" style="text-align: end"></div>
-        <div class="col-6">
-            <button class="btn btn-outline-primary" type="submit">Submit</button>
-        </div>
-    </div>
+                            <div class="form-group">
+                                <label>Company Task</label>
+                                <select id="companyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
+                                    {{range $company := .DataCompany}}
+                                    <option value="{{$company.CompanyID}}~{{$company.CompanyPMSID}}~{{$company.CompanyName}}~{{$company.Address}}">{{$company.CompanyID}}~{{$company.CompanyPMSID}}~{{$company.CompanyName}}~{{$company.Address}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>PIC Company Task</label>
+                                <select id="picCompanyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
+                                    {{range $pic := .DataPIC}}
+                                    <option value="{{$pic.PicID}}-{{$pic.GuestIDPMS}}-{{$pic.PicName}}-{{$pic.Phone}}-{{$pic.IdentificationID}}">{{$pic.PicID}}-{{$pic.GuestIDPMS}}-{{$pic.PicName}}-{{$pic.Phone}}-{{$pic.IdentificationID}}-</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sales Handle Company</label>
+                                <select id="salesHandleCompanyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
+                                    {{range $sales:= .DataSales}}
+                                    <option value="{{$sales.SalesID}}-{{$sales.SalesName}}">{{$sales.SalesID}}-{{$sales.SalesName}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Deadline Task</label>
+                                <div class="input-group date" id="reservationdate" data-target-input="nearest">
+                                    <input type="date" class="form-control datetimepicker-input"/>
+
+                                </div>
+                            </div>
+
+                                    <button class="btn btn-outline-primary" type="submit">Submit</button>
+
+                            </div>
 
 
-    <!--<input type="text" name="taskCreateBy" placeholder="Task Created By">-->
+                        </form>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
 
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
 
+{{end}}
 
-
-</form>
-
-
+{{define "footer"}}
 {{end}}

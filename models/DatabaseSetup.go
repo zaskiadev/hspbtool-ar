@@ -1,32 +1,32 @@
 package models
 
-import "gorm.io/gorm"
-
-type UserTasks struct {
-	gorm.Model
-	Id           uint   `gorm:"primaryKey;autoIncrement:true"`
-	CodeUserTask string `gorm:"primaryKey;"`
-	UserName     string
-	Password     string
+type TempUserTask struct {
+	UserID   string //`gorm:"primaryKey;autoIncrement:true"`
+	UserName string //`gorm:"primaryKey;"`
 }
 
-type Task struct {
-	gorm.Model
-	Id                      uint   `gorm:"primaryKey;autoIncrement:true"`
-	CodeTask                string `gorm:"primaryKey;"`
-	CodeUserCreateTask      string
-	CodeUserDestinationTask string
-	Task                    string
-	DateDeadLineTask        string
-	StatusTask              string
-	TaskComment             []TaskComment `gorm:"foreignKey:CodeTask;references:CodeTask"`
+type TempCompanyTask struct {
+	CompanyID    string //`gorm:"primaryKey;autoIncrement:true"`
+	CompanyPMSID string
+	CompanyName  string //`gorm:"primaryKey;"`
+	Address      string
+	Phone        string
 }
 
-type TaskComment struct {
-	gorm.Model
-	Id                  uint   `gorm:"primaryKey;autoIncrement:true"`
-	CodeTaskComment     string `gorm:"primaryKey;"`
-	CodeTask            string
-	DateComment         string
-	CodeUserCommentTask string
+type TempPicTask struct {
+	PicID            string
+	PicName          string
+	GuestIDPMS       string
+	Phone            string
+	CompanyID        string
+	IdentificationID string
+}
+
+type TempSales struct {
+	SalesID   string
+	SalesName string
+}
+
+type TempTask struct {
+	TaskID string
 }

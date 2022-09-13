@@ -48,7 +48,7 @@ func main() {
 	router.GET("/add_task", webController.AddTask)
 	router.POST("/add_task", webController.AddTask)
 	router.GET("/edit_task/:codetask", webController.EditTask)
-	router.POST("/update/:codetask", webController.UpdateTask)
+	router.POST("/edit_task/:codetask", webController.UpdateTask)
 
 	router.GET("/add_comment_task/", webController.AddCommentTask)
 	router.POST("/add_comment_task", webController.AddCommentTask)
