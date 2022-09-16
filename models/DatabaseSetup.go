@@ -30,3 +30,9 @@ type TempSales struct {
 type TempTask struct {
 	TaskID string
 }
+
+type LoginUser struct {
+	UserID    string
+	UserName  string
+	LevelUser string
+}

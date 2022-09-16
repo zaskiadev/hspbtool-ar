@@ -5,6 +5,7 @@ import (
 	f "fmt"
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/julienschmidt/httprouter"
+	"github.com/kataras/go-sessions/v3"
 	"hpbtool-ar/db"
 	"hpbtool-ar/models"
 	"html/template"
@@ -32,13 +33,19 @@ func (controller *WebControllers) Login(w http.ResponseWriter, r *http.Request, 
 	//	panic(err.Error())
 	//}
 	if r.Method == "POST" {
+
 		var userName = r.FormValue("userName")
 		var Password = r.FormValue("password")
 
 		//var data = models.UserTasks{}
 		//	var checkLogin = db.First(&data, "user_name=? and password=?", userName, Password)
-		var count, _ = db.Login(userName, Password)
+		var count, levelUser, UserID = db.Login(userName, Password)
 		if count > 0 {
+
+			session := sessions.Start(w, r)
+			session.Set("username", userName)
+			session.Set("leveluser", levelUser)
+			session.Set("userid", UserID)
 			http.Redirect(w, r, "/home", http.StatusFound)
 		}
 	} else {
@@ -63,6 +70,11 @@ func (controller *WebControllers) Home(w http.ResponseWriter, r *http.Request, p
 	if err != nil {
 		panic(err.Error())
 	}*/
+	var userLogin models.LoginUser
+	session := sessions.Start(w, r)
+	userLogin.UserID = session.GetString("userid")
+	userLogin.LevelUser = session.GetString("leveluser")
+	userLogin.UserName = session.GetString("username")
 
 	files := []string{
 		"./views/base.html",
@@ -76,7 +88,11 @@ func (controller *WebControllers) Home(w http.ResponseWriter, r *http.Request, p
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	err = htmlTemplate.ExecuteTemplate(w, "base", "")
+
+	datas := map[string]interface{}{
+		"UserLogin": userLogin,
+	}
+	err = htmlTemplate.ExecuteTemplate(w, "base", datas)
 	if err != nil {
 		println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -85,63 +101,26 @@ func (controller *WebControllers) Home(w http.ResponseWriter, r *http.Request, p
 }
 
 func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	/*	db, err := gorm.Open(sqlite.Open("databasetask.db"), &gorm.Config{})
-		if err != nil {
-			panic(err.Error())
-
-		}
-
-		if r.Method == "POST" {
-			var selectedValue = r.FormValue("dataUserTaskTo")
-
-			var data = models.UserTasks{}
-			db.First(&data, "user_name=? ", strings.Replace(selectedValue, " ", "", -1))
-
-			var getCodeName = data.CodeUserTask
-			var codeTask = ""
-
-			var dataTask = models.Task{}
-			var dataGetCodeTask = db.Order("code_task desc").First(&dataTask)
-			//println(dataGetCodeTask.Get("code_task"))
-			if dataGetCodeTask == nil {
-				codeTask = "TSK1"
-			} else {
-
-				var prefixOld = dataTask.CodeTask
-				var getOnlyIntPrefixOld = strings.Replace(prefixOld, "TSK", "", -1)
-
-				var getIncrement, _ = strconv.Atoi(getOnlyIntPrefixOld)
-				println(getIncrement)
-				getIncrement++
-				println(getIncrement)
-				codeTask = "TSK" + strconv.Itoa(getIncrement)
-			}
-			//db.Where("user_name = ?", selectedValue).Select("CodeUserTask").Find(&data)
-			//var getSelectedUserTask = data.CodeUserTask
-			//fmt.Println("selected user task : %s", getSelectedUserTask)
-			println("code taxnya adalah : " + codeTask)
-			task := models.Task{
-				CodeTask:                codeTask,
-				CodeUserCreateTask:      "0",
-				CodeUserDestinationTask: getCodeName,
-				Task:                    r.FormValue("taskDetail"),
-				DateDeadLineTask:        r.FormValue("deadLineTask"),
-				StatusTask:              "Create",
-				TaskComment:             nil,
-			}
-
-			result := db.Create(&task)
-
-			if result.Error != nil {
-				log.Println(result.Error)
-			}
-
-			http.Redirect(w, r, "/home", http.StatusFound)
-		} else {
-	*/
+	var userLogin models.LoginUser
+	session := sessions.Start(w, r)
+	userLogin.UserID = session.GetString("userid")
+	userLogin.LevelUser = session.GetString("leveluser")
+	userLogin.UserName = session.GetString("username")
 	if r.Method == "POST" {
-		r.FormValue("dataUserTaskTo")
+		var taskId = r.FormValue("IDTask")
+		var userDestinationTask = strings.Split(r.FormValue("userDestinationTask"), "-")
+		var companyTask = strings.Split(r.FormValue("companyTask"), "~")
+		var picCompanyTask = strings.Split(r.FormValue("picCompanyTask"), "-")
+		var salesCompanyTask = strings.Split(r.FormValue("salesHandleCompanyTask"), "-")
+		var dateDeadline = r.FormValue("dateDeadline")
+		f.Println(userDestinationTask[0])
+		f.Println(taskId)
+		f.Println(companyTask[0])
+		f.Println(picCompanyTask[0])
+		f.Println(salesCompanyTask[0])
+		f.Println(dateDeadline)
 
+		http.Redirect(w, r, "/home", http.StatusFound)
 	} else {
 		files := []string{
 			"./views/base.html",
@@ -170,7 +149,7 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 		var tempTask models.TempTask
 		tempTask.TaskID = "tes"
 		getTaskID_sql := f.Sprintf("SELECT TOP 1 * FROM task ORDER BY task_id DESC ")
-		f.Println(getTaskID_sql)
+		//f.Println(getTaskID_sql)
 		rows6, err6 := conn.Query(getTaskID_sql)
 		defer rows6.Close()
 		if err6 != nil {
@@ -190,9 +169,9 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 				var getOnlyIntPrefixOld = strings.Replace(prefixOld, "TAR", "", -1)
 
 				var getIncrement, _ = strconv.Atoi(getOnlyIntPrefixOld)
-				println(getIncrement)
+				//println(getIncrement)
 				getIncrement++
-				println(getIncrement)
+				//println(getIncrement)
 				tempTask.TaskID = "TAR" + strconv.Itoa(getIncrement)
 
 			} else {
@@ -202,10 +181,10 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 		}
 		var tempDataUserTask []models.TempUserTask
 		getUserTask_sql := f.Sprintf("select user_id,user_name from data_user where level_user='ar'")
-		f.Println(getUserTask_sql)
+		//f.Println(getUserTask_sql)
 		rows, err := conn.Query(getUserTask_sql)
 		if err != nil {
-			f.Println("Error reading records: ", err.Error())
+			//	f.Println("Error reading records: ", err.Error())
 		}
 		defer rows.Close()
 
@@ -226,7 +205,7 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 
 		var tempDataCompany []models.TempCompanyTask
 		getCompanyTask_sql := f.Sprintf("select company_id,name,address,phone, company_id_pms from company")
-		f.Println(getCompanyTask_sql)
+		//f.Println(getCompanyTask_sql)
 		rows2, err2 := conn.Query(getCompanyTask_sql)
 		if err2 != nil {
 			f.Println("Error reading records: ", err2.Error())
@@ -256,7 +235,7 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 
 		var tempDataPIC []models.TempPicTask
 		getPICTask_sql := f.Sprintf("select pic_id, name, guest_id_pms, phone, identification_id from pic")
-		f.Println(getPICTask_sql)
+		//f.Println(getPICTask_sql)
 		rows3, err3 := conn.Query(getPICTask_sql)
 		if err3 != nil {
 			f.Println("Error reading records: ", err3.Error())
@@ -287,7 +266,7 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 
 		var tempDataSales []models.TempSales
 		getSalesTask_sql := f.Sprintf("select sales_id, name from sales")
-		f.Println(getSalesTask_sql)
+		//f.Println(getSalesTask_sql)
 		rows5, err5 := conn.Query(getSalesTask_sql)
 		if err5 != nil {
 			f.Println("Error reading records: ", err5.Error())
@@ -313,13 +292,14 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 		//var dataUser, dataCompany, dataPIC = db.GetDataTempAddTask()
 		//var data []models.UserTasks
 		//db.Find(&data)
-		f.Println(tempTask.TaskID)
+		//f.Println(tempTask.TaskID)
 		datas := map[string]interface{}{
 			"DataUser":    tempDataUserTask,
 			"DataCompany": tempDataCompany,
 			"DataPIC":     tempDataPIC,
 			"DataSales":   tempDataSales,
 			"DataTask":    tempTask,
+			"UserLogin":   userLogin,
 		}
 		err = htmlTemplate.ExecuteTemplate(w, "base", datas)
 		if err != nil {

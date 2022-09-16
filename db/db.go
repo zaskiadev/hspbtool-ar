@@ -47,7 +47,7 @@ var (
 	//}
 }*/
 
-func Login(userName string, password string) (int, string) {
+func Login(userName string, password string) (int, string, string) {
 	var err error
 
 	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
@@ -60,7 +60,7 @@ func Login(userName string, password string) (int, string) {
 	defer conn.Close()
 	var levelUserReturn string
 
-	getProduct_sql := f.Sprintf("select user_name,password from data_user where user_name='%s' and password='%s'", userName, password)
+	getProduct_sql := f.Sprintf("select user_name,level_user, user_id from data_user where user_name='%s' and password='%s'", userName, password)
 	f.Println(getProduct_sql)
 	rows, err := conn.Query(getProduct_sql)
 	if err != nil {
@@ -69,20 +69,64 @@ func Login(userName string, password string) (int, string) {
 	defer rows.Close()
 
 	count := 0
+	var userID string
 	for rows.Next() {
 		var user_name string
 		var level_user string
+		var user_id string
 		//var id int
-		err := rows.Scan(&user_name, &level_user)
+		err := rows.Scan(&user_name, &level_user, &user_id)
 		if err != nil {
 			f.Println("Error reading rows: " + err.Error())
 		}
 
-		f.Printf("user name: %s, level user: %s", user_name, level_user)
+		//f.Printf("user name: %s, level user: %s", user_name, level_user)
 		levelUserReturn = level_user
+		userID = user_id
 		count++
 	}
-	return count, levelUserReturn
+	return count, levelUserReturn, userID
+}
+
+func AddTask(userDestinationTask string, taskID string, companyTask string, picCompanyTask string, salesCompanyTask string, dateDeadLine string, userCreatedTask string) bool {
+	var err error
+
+	var succes bool = false
+	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
+
+	conn, err := sql.Open("sqlserver", ConnString)
+	if err != nil {
+		log.Fatal("Open connection failed:", err.Error())
+	}
+	f.Printf("Connected!\n")
+	defer conn.Close()
+
+	getProduct_sql := f.Sprintf("select user_name,level_user, user_id from data_user where user_name='%s' and password='%s'", userName, password)
+	f.Println(getProduct_sql)
+	rows, err := conn.Query(getProduct_sql)
+	if err != nil {
+		f.Println("Error reading records: ", err.Error())
+	}
+	defer rows.Close()
+
+	count := 0
+	var userID string
+	for rows.Next() {
+		var user_name string
+		var level_user string
+		var user_id string
+		//var id int
+		err := rows.Scan(&user_name, &level_user, &user_id)
+		if err != nil {
+			f.Println("Error reading rows: " + err.Error())
+		}
+
+		//f.Printf("user name: %s, level user: %s", user_name, level_user)
+		levelUserReturn = level_user
+		userID = user_id
+		count++
+	}
+	return count, levelUserReturn, userID
 }
 
 func GetDataTempAddTask() ([]models.TempUserTask, []models.TempCompanyTask, []models.TempPicTask) {

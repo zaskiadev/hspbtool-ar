@@ -59,8 +59,8 @@ Add Task
                         <form action method="post">
                         <div class="card-body">
                             <div class="form-group">
-                                <label for="taskID">Task ID</label>
-                                <input type="text" class="form-control form-control-border border-width-2" id="taskID" name="taskID" value="{{.DataTask.TaskID}}" disabled>
+                                <label >Task ID</label>
+                                <input type="text" class="form-control form-control-border border-width-2" id="IDTask" name="IDTask" value="{{.DataTask.TaskID}}" readonly="readonly">
                             </div>
                             <div class="form-group">
                                 <label>User Tasked</label>
@@ -73,7 +73,7 @@ Add Task
 
                             <div class="form-group">
                                 <label>Company Task</label>
-                                <select id="companyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
+                                <select id="companyTask" name="companyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
                                     {{range $company := .DataCompany}}
                                     <option value="{{$company.CompanyID}}~{{$company.CompanyPMSID}}~{{$company.CompanyName}}~{{$company.Address}}">{{$company.CompanyID}}~{{$company.CompanyPMSID}}~{{$company.CompanyName}}~{{$company.Address}}</option>
                                     {{end}}
@@ -81,7 +81,7 @@ Add Task
                             </div>
                             <div class="form-group">
                                 <label>PIC Company Task</label>
-                                <select id="picCompanyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
+                                <select id="picCompanyTask" name="picCompanyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
                                     {{range $pic := .DataPIC}}
                                     <option value="{{$pic.PicID}}-{{$pic.GuestIDPMS}}-{{$pic.PicName}}-{{$pic.Phone}}-{{$pic.IdentificationID}}">{{$pic.PicID}}-{{$pic.GuestIDPMS}}-{{$pic.PicName}}-{{$pic.Phone}}-{{$pic.IdentificationID}}-</option>
                                     {{end}}
@@ -89,7 +89,7 @@ Add Task
                             </div>
                             <div class="form-group">
                                 <label>Sales Handle Company</label>
-                                <select id="salesHandleCompanyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
+                                <select id="salesHandleCompanyTask" name="salesHandleCompanyTask" class="form-control select2bs4" style="width: 100%; height: 100%">
                                     {{range $sales:= .DataSales}}
                                     <option value="{{$sales.SalesID}}-{{$sales.SalesName}}">{{$sales.SalesID}}-{{$sales.SalesName}}</option>
                                     {{end}}
@@ -98,8 +98,7 @@ Add Task
                             <div class="form-group">
                                 <label>Deadline Task</label>
                                 <div class="input-group date" id="reservationdate" data-target-input="nearest">
-                                    <input type="date" class="form-control datetimepicker-input"/>
-
+                                    <input type="date" name="dateDeadline" class="form-control datetimepicker-input"/>
                                 </div>
                             </div>
 
