@@ -3,10 +3,10 @@ package db
 import (
 	"database/sql"
 	f "fmt"
-	"log"
-
 	_ "github.com/denisenkom/go-mssqldb"
 	"hpbtool-ar/models"
+	"log"
+	"time"
 )
 
 var (
@@ -16,36 +16,6 @@ var (
 	Password = "sqledpbintaro123"
 	Db       = "hspb_tool_ar"
 )
-
-/*func CheckDbConn(personName string, email string, birthday string, gender string, address string) {
-	var err error
-
-	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
-
-	conn, err := sql.Open("sqlserver", ConnString)
-	if err != nil {
-		log.Fatal("Open connection failed:", err.Error())
-	}
-	f.Printf("Connected!\n")
-	defer conn.Close()
-	//option := 0
-	//f.Println("0.GET \n1.INSERT \n2.UPDATE \n3.DELETE")
-	//f.Scanln(&option)
-	//switch option {
-	//case 0:
-	//	GetProducts(conn)
-	//case 1:
-	result, _ := CreateProduct(conn, personName, email, birthday, gender, address)
-
-	f.Println(result)
-	//case 2:
-	//UpdateProduct(conn)
-	//case 3:
-	//	DeleteProduct(conn)
-	//default:
-	//	f.Println("Invalid operation request")
-	//}
-}*/
 
 func Login(userName string, password string) (int, string, string) {
 	var err error
@@ -88,10 +58,7 @@ func Login(userName string, password string) (int, string, string) {
 	return count, levelUserReturn, userID
 }
 
-func AddTask(userDestinationTask string, taskID string, companyTask string, picCompanyTask string, salesCompanyTask string, dateDeadLine string, userCreatedTask string) bool {
-	var err error
-
-	var succes bool = false
+func AddTask(userDestinationTask string, taskID string, companyTask string, picCompanyTask string, salesCompanyTask string, dateDeadLine string, userCreatedTask string, taskNotes string) bool {
 	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
 
 	conn, err := sql.Open("sqlserver", ConnString)
@@ -100,33 +67,21 @@ func AddTask(userDestinationTask string, taskID string, companyTask string, picC
 	}
 	f.Printf("Connected!\n")
 	defer conn.Close()
-
-	getProduct_sql := f.Sprintf("select user_name,level_user, user_id from data_user where user_name='%s' and password='%s'", userName, password)
-	f.Println(getProduct_sql)
-	rows, err := conn.Query(getProduct_sql)
+	currentTime := time.Now()
+	var success bool
+	insertProduct_sql := f.Sprintf("INSERT INTO task (task_id, user_id_create_task, user_id_delegation_task, date_created_task,date_deadline_task,company_id_destination_task,sales_id_destination_task,pic_id_destination_task, task_notes) "+
+		"VALUES ('%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", taskID, userCreatedTask, userDestinationTask, currentTime.Format("2006-01-02 15:04:05"), dateDeadLine, companyTask, salesCompanyTask, picCompanyTask, taskNotes)
+	rows, err := conn.Query(insertProduct_sql)
+	println(insertProduct_sql)
 	if err != nil {
-		f.Println("Error reading records: ", err.Error())
+		f.Println("Error occured while inserting a record", err.Error())
+		return false
 	}
+
+	success = true
 	defer rows.Close()
 
-	count := 0
-	var userID string
-	for rows.Next() {
-		var user_name string
-		var level_user string
-		var user_id string
-		//var id int
-		err := rows.Scan(&user_name, &level_user, &user_id)
-		if err != nil {
-			f.Println("Error reading rows: " + err.Error())
-		}
-
-		//f.Printf("user name: %s, level user: %s", user_name, level_user)
-		levelUserReturn = level_user
-		userID = user_id
-		count++
-	}
-	return count, levelUserReturn, userID
+	return success
 }
 
 func GetDataTempAddTask() ([]models.TempUserTask, []models.TempCompanyTask, []models.TempPicTask) {

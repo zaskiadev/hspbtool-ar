@@ -113,12 +113,16 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 		var picCompanyTask = strings.Split(r.FormValue("picCompanyTask"), "-")
 		var salesCompanyTask = strings.Split(r.FormValue("salesHandleCompanyTask"), "-")
 		var dateDeadline = r.FormValue("dateDeadline")
-		f.Println(userDestinationTask[0])
+		var taskNotes = r.FormValue("taskNotes")
+
+		db.AddTask(userDestinationTask[0], taskId, companyTask[0], picCompanyTask[0], salesCompanyTask[0], dateDeadline, userLogin.UserID, taskNotes)
+		/*f.Println(userDestinationTask[0])
 		f.Println(taskId)
 		f.Println(companyTask[0])
 		f.Println(picCompanyTask[0])
 		f.Println(salesCompanyTask[0])
 		f.Println(dateDeadline)
+		f.Println(taskNotes)*/
 
 		http.Redirect(w, r, "/home", http.StatusFound)
 	} else {
