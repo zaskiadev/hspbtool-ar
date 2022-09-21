@@ -45,6 +45,7 @@ func main() {
 	router.GET("/", webController.Login)
 	router.POST("/", webController.Login)
 	router.GET("/home", webController.Home)
+	router.GET("/data_task", webController.DataTask)
 	router.GET("/add_task", webController.AddTask)
 	router.POST("/add_task", webController.AddTask)
 	router.GET("/edit_task/:codetask", webController.EditTask)
@@ -56,6 +57,8 @@ func main() {
 	router.GET("/show_all_comment_task", webController.ShowAllCommentTask)
 
 	router.POST("/done/:codetask", webController.DoneTask)
+	router.GET("/done/:codetask", webController.DoneTask)
+
 	fs := http.FileServer(http.Dir("http/assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets", fs))
 	log.Fatal(http.ListenAndServe(":6490", router))

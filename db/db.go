@@ -69,8 +69,9 @@ func AddTask(userDestinationTask string, taskID string, companyTask string, picC
 	defer conn.Close()
 	currentTime := time.Now()
 	var success bool
-	insertProduct_sql := f.Sprintf("INSERT INTO task (task_id, user_id_create_task, user_id_delegation_task, date_created_task,date_deadline_task,company_id_destination_task,sales_id_destination_task,pic_id_destination_task, task_notes) "+
-		"VALUES ('%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ", taskID, userCreatedTask, userDestinationTask, currentTime.Format("2006-01-02 15:04:05"), dateDeadLine, companyTask, salesCompanyTask, picCompanyTask, taskNotes)
+	//status := "created"
+	insertProduct_sql := f.Sprintf("INSERT INTO task (task_id, user_id_create_task, user_id_delegation_task, date_created_task,date_deadline_task,company_id_destination_task,sales_id_destination_task,pic_id_destination_task, task_notes,status_task) "+
+		"VALUES ('%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s') ", taskID, userCreatedTask, userDestinationTask, currentTime.Format("2006-01-02 15:04:05"), dateDeadLine, companyTask, salesCompanyTask, picCompanyTask, taskNotes, "created")
 	rows, err := conn.Query(insertProduct_sql)
 	println(insertProduct_sql)
 	if err != nil {
@@ -181,4 +182,96 @@ func GetDataTempAddTask() ([]models.TempUserTask, []models.TempCompanyTask, []mo
 
 	return tempDataUserTask, tempDataCompany, tempDataPIC
 
+}
+
+func GetDataTask() []models.DataTask {
+
+	var err error
+
+	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
+
+	conn, err := sql.Open("sqlserver", ConnString)
+	if err != nil {
+		log.Fatal("Open connection failed:", err.Error())
+	}
+	f.Printf("Connected!\n")
+	defer conn.Close()
+
+	var tempDataTask []models.DataTask
+	getUserTask_sql := f.Sprintf("select t.task_id, uc.user_name as user_create, ud.user_name as user_delegation, t.date_deadline_task,  " +
+		"c.company_id_pms, c.name, c.address, p.name, p.phone, s.name , t.task_notes, t.status_task from task t " +
+		"LEFT JOIN data_user uc ON t.user_id_create_task = uc.user_id " +
+		"LEFT JOIN data_user ud ON t.user_id_delegation_task= ud.user_id " +
+		"LEFT JOIN company c ON t.company_id_destination_task=c.company_id " +
+		"LEFT JOIN pic p ON t.pic_id_destination_task=p.pic_id " +
+		"LEFT JOIN sales s ON t.sales_id_destination_task=s.sales_id ",
+	)
+	f.Println(getUserTask_sql)
+	rows, err := conn.Query(getUserTask_sql)
+	if err != nil {
+		f.Println("Error reading records: ", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user_created_task string
+		var assign_to string
+		var deadline string
+		var company string
+		var company_id_pms string
+		var company_alamat string
+		var pic string
+		var pic_phone string
+		var sales string
+		var task_notes string
+		var status_task string
+		var task_id string
+		//var id int
+		err := rows.Scan(&task_id, &user_created_task, &assign_to, &deadline, &company_id_pms, &company, &company_alamat, &pic, &pic_phone, &sales, &task_notes, &status_task)
+		if err != nil {
+			f.Println("Error reading rows: " + err.Error())
+		}
+		dataTask := models.DataTask{
+			UserCreatedTask: user_created_task,
+			AssignTask:      assign_to,
+			Deadline:        deadline,
+			Company:         company_id_pms + "-" + company + "" + company_alamat,
+			PIC:             pic + "-" + pic_phone,
+			Sales:           sales,
+			TaskNotes:       task_notes,
+			StatusTask:      status_task,
+			CodeTask:        task_id,
+		}
+		tempDataTask = append(tempDataTask, dataTask)
+	}
+
+	return tempDataTask
+
+}
+
+func DoneTask(codeTask string) (stsatus bool) {
+	var status bool
+	var err error
+
+	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
+
+	conn, err := sql.Open("sqlserver", ConnString)
+	if err != nil {
+		log.Fatal("Open connection failed:", err.Error())
+	}
+	f.Printf("Connected!\n")
+	defer conn.Close()
+
+	update_sql := f.Sprintf("UPDATE task set status_task='%s' where task_id='%s'", "done", codeTask)
+
+	rows, err := conn.Query(update_sql)
+
+	if err != nil {
+		f.Println("Error occured while inserting a record", err.Error())
+		return false
+	}
+
+	status = true
+	defer rows.Close()
+	return status
 }

@@ -36,3 +36,15 @@ type LoginUser struct {
 	UserName  string
 	LevelUser string
 }
+
+type DataTask struct {
+	CodeTask        string
+	UserCreatedTask string
+	AssignTask      string
+	Deadline        string
+	Company         string
+	PIC             string
+	Sales           string
+	TaskNotes       string
+	StatusTask      string
+}

@@ -17,6 +17,106 @@ $(document).ready(function(){
 
 
 {{define "main"}}
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Task</li>
+                        <li class="breadcrumb-item active">Data Task</li>
+                    </ol>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-13">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Data Task</h3>
+                        </div>
+                        <!-- /.card-header -->
+
+                        <form action method="post">
+                            <div class="card-body">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>User Created Task</th>
+                                        <th>Assign To</th>
+                                        <th>Deadline</th>
+                                        <th>Company</th>
+                                        <th>PIC</th>
+                                        <th>Sales</th>
+                                        <th>Task Notes</th>
+                                        <th>Task Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{range $task:= .DataTask}}
+                                    <tr>
+                                        <td>{{$task.UserCreatedTask}}</td>
+                                        <td>{{$task.AssignTask}}</td>
+                                        <td>{{$task.Deadline}}</td>
+                                        <td>{{$task.Company}}</td>
+                                        <td>{{$task.PIC}}</td>
+                                        <td>
+                                            {{$task.Sales}}
+                                        </td>
+                                        <td>
+                                            {{$task.TaskNotes}}
+                                        </td>
+                                        <td>{{$task.StatusTask}}</td>
+
+                                        <td>
+                                            {{if ne $task.StatusTask "done" }}
+                                            <a href="/edit_task/{{$task.CodeTask}}" class="btn btn-danger">Edit Task</a>
+                                            <a href="#" class="btn btn-warning">Add Comment</a>
+                                            <form action="/done/{{$task.CodeTask}}" method="POST">
+                                                <button type="submit" class="btn btn-info">Done</button>
+                                            </form>
+
+                                            {{else}}
+                                            <button type="button" href="#" class="btn btn-success">Done</button>
+                                            <a href="#" class="btn btn-info">Show Comment</a>
+                                            {{end}}
+                                        </td>
+                                    </tr>
+                                    {{end}}
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+
+                        </form>
+
+
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+
 <h1 class="display-6 mt-5">Task List</h1>
 <table class="table table-striped">
     <thead>
@@ -57,4 +157,7 @@ $(document).ready(function(){
 
 </table>
 <a class="btn btn-success" href="/add_task"> <i class="fa-solid fa-plus"></i>Create Task</a>
+{{end}}
+
+{{define "footer"}}
 {{end}}

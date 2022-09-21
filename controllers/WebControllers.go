@@ -152,10 +152,11 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 
 		var tempTask models.TempTask
 		tempTask.TaskID = "tes"
-		getTaskID_sql := f.Sprintf("SELECT TOP 1 * FROM task ORDER BY task_id DESC ")
+		getTaskID_sql := f.Sprintf("SELECT TOP 1 task_id FROM task ORDER BY task_id DESC ")
 		//f.Println(getTaskID_sql)
 		rows6, err6 := conn.Query(getTaskID_sql)
 		defer rows6.Close()
+
 		if err6 != nil {
 			f.Println("Error reading records: ", err6.Error())
 
@@ -168,6 +169,8 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 				if err6 != nil {
 					f.Println("Error reading rows: " + err6.Error())
 				}
+				f.Println("task id = " + task_id)
+				f.Println("Lewat Sini")
 				var prefixOld = task_id
 
 				var getOnlyIntPrefixOld = strings.Replace(prefixOld, "TAR", "", -1)
@@ -312,6 +315,47 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 		}
 	}
 }
+func (controller *WebControllers) DataTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	var userLogin models.LoginUser
+	session := sessions.Start(w, r)
+	userLogin.UserID = session.GetString("userid")
+	userLogin.LevelUser = session.GetString("leveluser")
+	userLogin.UserName = session.GetString("username")
+	if r.Method == "POST" {
+
+		http.Redirect(w, r, "/home", http.StatusFound)
+	} else {
+		files := []string{
+			"./views/base.html",
+			"./views/data_task.html",
+		}
+
+		htmlTemplate, err4 := template.ParseFiles(files...)
+
+		if err4 != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			f.Println(err4.Error())
+			return
+		}
+
+		var dataTask = db.GetDataTask()
+
+		//var dataUser, dataCompany, dataPIC = db.GetDataTempAddTask()
+		//var data []models.UserTasks
+		//db.Find(&data)
+		//f.Println(tempTask.TaskID)
+		f.Println(dataTask[0].TaskNotes)
+		datas := map[string]interface{}{
+			"DataTask":  dataTask,
+			"UserLogin": userLogin,
+		}
+		err4 = htmlTemplate.ExecuteTemplate(w, "base", datas)
+		if err4 != nil {
+			http.Error(w, err4.Error(), http.StatusInternalServerError)
+			f.Println(err4.Error())
+		}
+	}
+}
 
 func (controller *WebControllers) AddCommentTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	/*	db, err := gorm.Open(sqlite.Open("databasetask.db"), &gorm.Config{})
@@ -452,21 +496,11 @@ func (controller *WebControllers) UpdateTask(w http.ResponseWriter, r *http.Requ
 }
 
 func (controller *WebControllers) DoneTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	/*db, err := gorm.Open(sqlite.Open("databasetask.db"), &gorm.Config{})
-	if err != nil {
-		panic(err.Error())
-	}
 
+	f.Println("LEwat Sini")
 	var taskCode = params.ByName("codetask")
-	var task models.Task
-
-	println(taskCode)
-	db.Where("code_task =?", taskCode).First(&task)
-
-	task.StatusTask = "Done"
-
-	db.Save(&task)
-
-	http.Redirect(w, r, "/home", http.StatusFound)
-	*/
+	var updateTask = db.DoneTask(taskCode)
+	if updateTask {
+		http.Redirect(w, r, "/home", http.StatusFound)
+	}
 }
