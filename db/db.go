@@ -248,6 +248,63 @@ func GetDataTask() []models.DataTask {
 	return tempDataTask
 
 }
+func GetDataTaskForCommentTask(taskCode string) models.DataTask {
+
+	var err error
+
+	ConnString := f.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;sslmode=disable", Server, User, Password, Port, Db)
+
+	conn, err := sql.Open("sqlserver", ConnString)
+	if err != nil {
+		log.Fatal("Open connection failed:", err.Error())
+	}
+	f.Printf("Connected!\n")
+	defer conn.Close()
+
+	var tempDataTask models.DataTask
+	getUserTask_sql := f.Sprintf("select t.task_id, uc.user_name as user_create, ud.user_name as user_delegation, t.date_deadline_task,  c.company_id_pms, c.name, c.address, p.name, p.phone, s.name , t.task_notes, t.status_task from task t LEFT JOIN data_user uc ON t.user_id_create_task = uc.user_id LEFT JOIN data_user ud ON t.user_id_delegation_task= ud.user_id LEFT JOIN company c ON t.company_id_destination_task=c.company_id LEFT JOIN pic p ON t.pic_id_destination_task=p.pic_id LEFT JOIN sales s ON t.sales_id_destination_task=s.sales_id where t.task_id='%s'", taskCode)
+	f.Println(getUserTask_sql)
+
+	rows, err := conn.Query(getUserTask_sql)
+	if err != nil {
+		f.Println("Error reading records: ", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user_created_task string
+		var assign_to string
+		var deadline string
+		var company string
+		var company_id_pms string
+		var company_alamat string
+		var pic string
+		var pic_phone string
+		var sales string
+		var task_notes string
+		var status_task string
+		var task_id string
+		//var id int
+		err := rows.Scan(&task_id, &user_created_task, &assign_to, &deadline, &company_id_pms, &company, &company_alamat, &pic, &pic_phone, &sales, &task_notes, &status_task)
+		if err != nil {
+			f.Println("Error reading rows: " + err.Error())
+		}
+		f.Println(task_id + "-" + user_created_task)
+		tempDataTask.UserCreatedTask = user_created_task
+		tempDataTask.AssignTask = assign_to
+		tempDataTask.Deadline = deadline
+		tempDataTask.Company = company_id_pms + "-" + company + "" + company_alamat
+		tempDataTask.PIC = pic + "-" + pic_phone
+		tempDataTask.Sales = sales
+		tempDataTask.TaskNotes = task_notes
+		tempDataTask.StatusTask = status_task
+		tempDataTask.CodeTask = task_id
+
+	}
+
+	return tempDataTask
+
+}
 
 func DoneTask(codeTask string) (stsatus bool) {
 	var status bool

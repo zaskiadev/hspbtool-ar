@@ -8,10 +8,10 @@ import (
 	"github.com/kataras/go-sessions/v3"
 	"hpbtool-ar/db"
 	"hpbtool-ar/models"
+	"hpbtool-ar/utilities"
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -116,13 +116,6 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 		var taskNotes = r.FormValue("taskNotes")
 
 		db.AddTask(userDestinationTask[0], taskId, companyTask[0], picCompanyTask[0], salesCompanyTask[0], dateDeadline, userLogin.UserID, taskNotes)
-		/*f.Println(userDestinationTask[0])
-		f.Println(taskId)
-		f.Println(companyTask[0])
-		f.Println(picCompanyTask[0])
-		f.Println(salesCompanyTask[0])
-		f.Println(dateDeadline)
-		f.Println(taskNotes)*/
 
 		http.Redirect(w, r, "/home", http.StatusFound)
 	} else {
@@ -169,20 +162,9 @@ func (controller *WebControllers) AddTask(w http.ResponseWriter, r *http.Request
 				if err6 != nil {
 					f.Println("Error reading rows: " + err6.Error())
 				}
-				f.Println("task id = " + task_id)
-				f.Println("Lewat Sini")
-				var prefixOld = task_id
-
-				var getOnlyIntPrefixOld = strings.Replace(prefixOld, "TAR", "", -1)
-
-				var getIncrement, _ = strconv.Atoi(getOnlyIntPrefixOld)
-				//println(getIncrement)
-				getIncrement++
-				//println(getIncrement)
-				tempTask.TaskID = "TAR" + strconv.Itoa(getIncrement)
-
+				tempTask.TaskID = utilities.GetNextCode(task_id, "TAR")
 			} else {
-				tempTask.TaskID = "TAR1"
+				tempTask.TaskID = "TAR0001"
 			}
 
 		}
@@ -358,33 +340,36 @@ func (controller *WebControllers) DataTask(w http.ResponseWriter, r *http.Reques
 }
 
 func (controller *WebControllers) AddCommentTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	/*	db, err := gorm.Open(sqlite.Open("databasetask.db"), &gorm.Config{})
-		if err != nil {
-			panic(err.Error())
-		}
+	var err6 error
+	var userLogin models.LoginUser
+	session := sessions.Start(w, r)
+	userLogin.UserID = session.GetString("userid")
+	userLogin.LevelUser = session.GetString("leveluser")
+	userLogin.UserName = session.GetString("username")
+	var taskCode = params.ByName("codetask")
+	files := []string{
+		"./views/base.html",
+		"./views/add_comment_task.html",
+	}
+	htmlTemplate, err4 := template.ParseFiles(files...)
+	if err4 != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		f.Println(err4.Error())
+		return
+	}
 
-		files := []string{
-			"./views/base.html",
-			"./views/add_comment_task.html",
-		}
+	var dataTask = db.GetDataTaskForCommentTask(taskCode)
 
-		htmlTemplate, err := template.ParseFiles(files...)
-
-		if err != nil {
-			log.Println(err.Error())
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		var DataTasks []models.Task
-		db.Find(&DataTasks)
-		datas := map[string]interface{}{
-			"Tasks": DataTasks,
-		}
-		err = htmlTemplate.ExecuteTemplate(w, "base", datas)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	*/
+	//println(dataTask[0].TaskNotes)
+	datas := map[string]interface{}{
+		"DataTasks": dataTask,
+		"UserLogin": userLogin,
+	}
+	err6 = htmlTemplate.ExecuteTemplate(w, "base", datas)
+	if err6 != nil {
+		http.Error(w, err6.Error(), http.StatusInternalServerError)
+		f.Println(err6.Error())
+	}
 }
 
 func (controller *WebControllers) ShowAllCommentTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -497,7 +482,6 @@ func (controller *WebControllers) UpdateTask(w http.ResponseWriter, r *http.Requ
 
 func (controller *WebControllers) DoneTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 
-	f.Println("LEwat Sini")
 	var taskCode = params.ByName("codetask")
 	var updateTask = db.DoneTask(taskCode)
 	if updateTask {

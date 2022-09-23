@@ -83,7 +83,9 @@ $(document).ready(function(){
                                         <td>
                                             {{if ne $task.StatusTask "done" }}
                                             <a href="/edit_task/{{$task.CodeTask}}" class="btn btn-danger">Edit Task</a>
-                                            <a href="#" class="btn btn-warning">Add Comment</a>
+
+                                            <a href="/add_comment_task/{{$task.CodeTask}}" class="btn btn-warning">Add Comment</a>
+
                                             <form action="/done/{{$task.CodeTask}}" method="POST">
                                                 <button type="submit" class="btn btn-info">Done</button>
                                             </form>
